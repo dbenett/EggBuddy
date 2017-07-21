@@ -189,7 +189,7 @@ var storage = (function() {
 
                callback(counter);
             });
-		}
+		},
 
         getOtherFoodResponse: function(other_food, session, callback) {
             var responses = [
