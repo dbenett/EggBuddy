@@ -86,11 +86,15 @@ var storage = (function() {
 		    var params = {
 		        TableName: 'favoriteEggDish',
 		        Item: {
-					UserId: session.user.userId,
-					EggDish: eggDish
+					"UserId": {
+					    S: session.user.userId
+					},
+					"EggDish": {
+					    S: eggDish
+					}
 				}
 			};
-			dynamodb.put(params, function(err, data) {
+			dynamodb.putItem(params, function(err, data) {
 				callback(eggDish);
 			});
 		},
@@ -98,13 +102,36 @@ var storage = (function() {
 		    var params = {
 		        TableName: 'favoriteEggDish',
 		        Key: {
-					UserId: session.user.userId,
+					"UserId": {
+					    S: session.user.userId,
+					}
 				}
 			};
-			dynamodb.get(params, function(err, data) {
-				callback(data.Item.EggDish);
+			dynamodb.getItem(params, function(err, data) {
+			    console.log(data);
+				callback(data.Item.EggDish.S);
 			});
 		},
+		saveEggEvent: function(eggsUsed, session) {
+		    var params = {
+		        TableName: 'eggEvents',
+		        Item: {
+		            "UserId": {
+		                S: session.user.userId,
+		            },
+		            "Timestamp": {
+		                N: String(Date.now())
+		            },
+					"EggsUsed": {
+					    N: String(eggsUsed)
+					}
+		        }
+		    }
+		    dynamodb.putItem(params, function(err, data) {
+		        if (err) console.log(err);
+			});
+		},
+
         getDishSuggestion: function(session, callback) {
             var choices = [
                 'omelette',
@@ -128,7 +155,41 @@ var storage = (function() {
                 'scrambled eggs'];
             var random_dish = choices[Math.floor(Math.random() * choices.length)];
             callback(random_dish);
-        }
+        },
+
+		getEggsUsed: function(timeRange, session, callback) {
+		    var params = {
+                TableName: 'eggEvents',
+                KeyConditionExpression: '#uid = :user and #t > :time',
+                ExpressionAttributeNames: {
+                    "#uid": "UserId",
+                    "#t": "Timestamp"
+                },
+                ExpressionAttributeValues: {
+                    ':time': {
+                        N: String(Date.now() - timeRange)
+                    },
+                    ':user': {
+                        S: session.user.userId
+                    },
+                },
+                ProjectionExpression: 'EggsUsed'
+            };
+
+            dynamodb.query(params, function(err, data) {
+               if (err) console.log(err);
+
+               var counter = 0;
+
+               for (var i = 0; i < data.Items.length; i++) {
+                    counter += parseInt(data.Items[i].EggsUsed.N);
+               }
+
+               console.log(counter);
+
+               callback(counter);
+            });
+		}
 	}
 })();
 

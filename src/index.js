@@ -2,6 +2,7 @@
 'use strict';
 var Alexa = require("alexa-sdk");
 var storage = require("./storage");
+var moment = require("moment");
 
 exports.handler = function (event, context, callback) {
 	var alexa = Alexa.handler(event, context);
@@ -44,6 +45,8 @@ const handlers = {
 	'DecreaseEggCount': function() {
 		var eggDelta = String(-1 * this.event.request.intent.slots.EggCount.value);
 		var response = '';
+
+		storage.saveEggEvent(-1 * eggDelta, this.event.session);
 
 		storage.updateEggCount(eggDelta, this.event.session, (eggCount) => {
             response = ''
@@ -96,6 +99,17 @@ const handlers = {
             this.emit(':ask', response);
         })
     },
+
+	'GetEggsUsed': function() {
+	    var timeRangeIn = this.event.request.intent.slots.Duration.value;
+	    var timeRange = moment.duration(timeRangeIn).asMilliseconds();
+	    var response = '';
+
+	    storage.getEggsUsed(timeRange, this.event.session, (eggs) => {
+	        response = 'You used ' + eggs + " eggs";
+	        this.emit(':ask', response);
+	    })
+	},
 
 	'Unhandled': function() {
 		this.emit(':ask', 'Sorry, I didn\'t get that. Try saying something about eggs.', 'Try saying egg.');
