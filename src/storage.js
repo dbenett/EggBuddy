@@ -34,14 +34,6 @@ var storage = (function() {
                     }
                 },
 				ReturnValues: "ALL_NEW",
-				Expected: {
-				    "EggCount": {
-				        AttributeValueList: [
-                            0
-                        ],
-                        ComparisonOperator: "GE"
-				    }
-				}
 			};
 			dynamodb.update(params, function(err, data) {
 			    if (err) console.log(err);
@@ -58,6 +50,29 @@ var storage = (function() {
 			};
 			dynamodb.get(params, function(err, data) {
 				callback(data.Item.EggCount);
+			});
+		},
+		setFavoriteEggDish: function(eggDish, session, callback) {
+		    var params = {
+		        TableName: 'favoriteEggDish',
+		        Item: {
+					UserId: session.user.userId,
+					EggDish: eggDish
+				}
+			};
+			dynamodb.put(params, function(err, data) {
+				callback(eggDish);
+			});
+		},
+		getFavoriteEggDish: function(session, callback) {
+		    var params = {
+		        TableName: 'favoriteEggDish',
+		        Key: {
+					UserId: session.user.userId,
+				}
+			};
+			dynamodb.get(params, function(err, data) {
+				callback(data.Item.EggDish);
 			});
 		}
 	}

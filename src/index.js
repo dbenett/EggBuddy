@@ -59,11 +59,20 @@ const handlers = {
 	    var eggDish = this.event.request.intent.slots.EggDish.value;
 	    var response = '';
 
-	    storage.setFavoriteEggDish(this.event.session, (eggDish) => {
-	        response = 'Great, I love ' + eggDish + ' remaining.';
+	    storage.setFavoriteEggDish(eggDish, this.event.session, (eggDish) => {
+	        response = 'Great, I love ' + eggDish + "!";
 	        this.emit(':ask', response);
 	    })
-	}
+	},
+
+	'GetFavoriteEggDish': function() {
+	    var response = '';
+
+	    storage.getFavoriteEggDish(this.event.session, (eggDish) => {
+	        response = 'Your favorite egg dish is ' + eggDish + ". Yum!";
+	        this.emit(':ask', response);
+	    })
+	},
 
 	'Unhandled': function() {
 		this.emit(':ask', 'Sorry, I didn\'t get that. Try saying something about eggs.', 'Try saying egg.');
