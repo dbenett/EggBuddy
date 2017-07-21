@@ -190,6 +190,16 @@ var storage = (function() {
                callback(counter);
             });
 		}
+
+        getOtherFoodResponse: function(other_food, session, callback) {
+            var responses = [
+                other_food + " ain't an egg",
+                'Why have ' + other_food + ' when you could have an egg',
+                'This skill deals eggs clusively with eggs',
+                "Don't ever ask me about " + other_food + " again"];
+            var random_response = responses[Math.floor(Math.random() * responses.length)];
+            callback(random_response);
+        }
 	}
 })();
 

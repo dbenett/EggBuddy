@@ -111,6 +111,13 @@ const handlers = {
 	    })
 	},
 
+    'OtherFood': function() {
+        var other_food = this.event.request.intent.slots.other_food.value;
+        storage.getOtherFoodResponse(other_food, this.event.session, (response) => { 
+            this.emit(':ask', response);
+        })
+    },
+
 	'Unhandled': function() {
 		this.emit(':ask', 'Sorry, I didn\'t get that. Try saying something about eggs.', 'Try saying egg.');
 	},
