@@ -13,7 +13,7 @@ exports.handler = function (event, context, callback) {
 
 const handlers = {
 	'LaunchRequest': function () {
-		var welcomeMessage = 'Hello! How many eggs will you be enjoying this morning?';
+		var welcomeMessage = 'Hello! Welcome to egg buddy!';
 		this.emit(':ask', welcomeMessage, 'Try again.');
 	},
 
@@ -123,7 +123,7 @@ const handlers = {
 	},
 
 	'AMAZON.HelpIntent': function () {
-		this.emit(':ask', 'Tell me about eggs.', 'try again');
+		this.emit(':ask', 'Tell me about how many eggs you are eating', 'try again');
 	},
 
 	'AMAZON.StopIntent': function () {
