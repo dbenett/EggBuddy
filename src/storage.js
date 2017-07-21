@@ -104,7 +104,31 @@ var storage = (function() {
 			dynamodb.get(params, function(err, data) {
 				callback(data.Item.EggDish);
 			});
-		}
+		},
+        getDishSuggestion: function(session, callback) {
+            var choices = [
+                'omelette',
+                'egg in a hole',
+                'soft boiled egg',
+                'seasoned egg',
+                'egg',
+                'handful of eggs',
+                'pair of eggs',
+                'poached egg',
+                'eggs benedict',
+                'raw egg',
+                'hard boiled egg',
+                'soft boiled egg',
+                'eggs over easy',
+                'eggs over medium',
+                'eggs over hard',
+                'frittata',
+                'quiche',
+                'fried egg',
+                'scrambled eggs'];
+            var random_dish = choices[Math.floor(Math.random() * choices.length)];
+            callback(random_dish);
+        }
 	}
 })();
 

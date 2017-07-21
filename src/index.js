@@ -89,6 +89,14 @@ const handlers = {
 	    })
 	},
 
+    'GetDishSuggestion': function() {
+        var response = '';
+        storage.getDishSuggestion(this.event.session, (eggDish) => {
+            response = 'I suggest having ' + eggDish + ' today.';
+            this.emit(':ask', response);
+        })
+    },
+
 	'Unhandled': function() {
 		this.emit(':ask', 'Sorry, I didn\'t get that. Try saying something about eggs.', 'Try saying egg.');
 	},
