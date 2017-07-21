@@ -7,49 +7,79 @@ AWS.config.update({
 });
 
 var storage = (function() {
-	var dynamodb = new AWS.DynamoDB.DocumentClient();
+	var dynamodb = new AWS.DynamoDB();
 	return {
 		setEggCount: function(eggCount, session, callback) {
 			var params = {
 				TableName: "eggCountTable",
 				Item: {
-					UserId: session.user.userId,
-					EggCount: parseInt(eggCount)
+                    "UserId": {
+                        S: session.user.userId
+                    },
+                    "EggCount": {
+                        N: eggCount
+                    }
 				}
 			};
-			dynamodb.put(params, function(err, data) {
+			dynamodb.putItem(params, function(err, data) {
 				callback(eggCount);
 			})
 		},
 		updateEggCount: function(eggDelta, session, callback) {
 			var params = {
-				TableName: "eggCountTable",
-				Key: {
-                    UserId: session.user.userId
+                ExpressionAttributeNames: {
+                    "#E": "EggCount"
                 },
-                AttributeUpdates: {
-                    "EggCount": {
-                        Action: "ADD",
-                        Value: parseInt(eggDelta)
+				TableName: "eggCountTable",
+                ExpressionAttributeValues: {
+                    ":d": {
+                        N: eggDelta
+                    },
+                    ":0": {
+                        N: '0'
+                    },
+                    ":minus_d": {
+                        N: String(parseInt(eggDelta)*-1)
                     }
                 },
-				ReturnValues: "ALL_NEW",
+				Key: {
+                    "UserId": {
+                        S: session.user.userId
+                    }
+                },
+				ReturnValues: "UPDATED_NEW",
+                UpdateExpression: "SET #E = if_not_exists(#E,:0) + :d",
+                ConditionExpression: "#E >= :minus_d"
 			};
-			dynamodb.update(params, function(err, data) {
-			    if (err) console.log(err);
-			    console.log(data);
-				callback(data.Attributes.EggCount);
+			dynamodb.updateItem(params, function(err, data) {
+			    if (err) {
+                    console.log(err);
+                    callback(null);
+                } else {
+                    callback(data.Attributes.EggCount.N);
+                }
 			})
 		},
 		getEggCount: function(session, callback) {
 			var params = {
 				TableName: 'eggCountTable',
 				Key: {
-					UserId: session.user.userId,
+                    "UserId": {
+                        S: session.user.userId
+                    }
 				}
 			};
-			dynamodb.get(params, function(err, data) {
-				callback(data.Item.EggCount);
+			dynamodb.getItem(params, function(err, data) {
+                try {
+                    if (err) {
+                        console.log(err);
+                        callback(null);
+                    } else {
+                        callback(data.Item.EggCount.N);
+                    }
+                } catch(e) {
+                    callback(null);
+                }
 			});
 		},
 		setFavoriteEggDish: function(eggDish, session, callback) {

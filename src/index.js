@@ -31,17 +31,27 @@ const handlers = {
 		var response = '';
 
 		storage.updateEggCount(eggDelta, this.event.session, (eggCount) => {
-			response = 'Ok you now have eggs actly ' + eggCount + ' eggs remaining.';
+            response = '';
+            if (eggCount === null) {
+                response = "I'm sorry, you haven't registered any eggs yet!";
+            } else {
+                response = 'Ok you now have eggs actly ' + eggCount + ' eggs remaining.';
+            }
 			this.emit(':ask', response);
 		});
 	},
 
 	'DecreaseEggCount': function() {
-		var eggDelta = -1 * this.event.request.intent.slots.EggCount.value;
+		var eggDelta = String(-1 * this.event.request.intent.slots.EggCount.value);
 		var response = '';
 
 		storage.updateEggCount(eggDelta, this.event.session, (eggCount) => {
-			response = 'Ok you now have ' + eggCount + ' eggs remaining.';
+            response = ''
+            if (eggCount === null) {
+                response = "I'm sorry, you can't remove more eggs than you have!";
+            } else {
+                response = 'Ok you now have ' + eggCount + ' eggs remaining.';
+            }
 			this.emit(':ask', response);
 		});
 	},
@@ -50,7 +60,12 @@ const handlers = {
 		var response = '';
 
 		storage.getEggCount(this.event.session, (eggCount) => {
-			response = 'You have ' + eggCount + ' remaining.';
+            response = '';
+            if (eggCount === null) {
+                response = "I'm sorry, you haven't registered any eggs yet!";
+            } else {
+                response = 'You have ' + eggCount + ' remaining.';
+            }
 			this.emit(':ask', response);
 		});
 	},
